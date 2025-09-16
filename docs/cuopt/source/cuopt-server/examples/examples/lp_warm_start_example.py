@@ -1,0 +1,52 @@
+from cuopt_sh_client import CuOptServiceSelfHostClient
+import json
+
+data = {
+    "csr_constraint_matrix": {
+        "offsets": [0, 2, 4],
+        "indices": [0, 1, 0, 1],
+        "values": [3.0, 4.0, 2.7, 10.1]
+    },
+    "constraint_bounds": {
+        "upper_bounds": [5.4, 4.9],
+        "lower_bounds": ["ninf", "ninf"]
+    },
+    "objective_data": {
+        "coefficients": [-0.2, 0.1],
+        "scalability_factor": 1.0,
+        "offset": 0.0
+    },
+    "variable_bounds": {
+        "upper_bounds": ["inf", "inf"],
+        "lower_bounds": [0.0, 0.0]
+    },
+    "maximize": False,
+    "solver_config": {
+        "tolerances": {
+            "optimality": 0.0001
+        }
+    }
+}
+
+# If cuOpt is not running on localhost:5000, edit ip and port parameters
+cuopt_service_client = CuOptServiceSelfHostClient(
+    ip="localhost",
+    port=5000,
+    timeout_exception=False
+)
+
+# Set delete_solution to false so it can be used in next request
+initial_solution = cuopt_service_client.get_LP_solve(
+    data, delete_solution=False, response_type="dict"
+)
+
+# Use previous solution saved in server as initial solution to this request.
+# That solution is referenced with previous request id.
+solution = cuopt_service_client.get_LP_solve(
+    data, warmstart_id=initial_solution["reqId"], response_type="dict"
+)
+
+print(json.dumps(solution, indent=4))
+
+# Delete saved solution if not required to save space
+cuopt_service_client.delete(initial_solution["reqId"])
