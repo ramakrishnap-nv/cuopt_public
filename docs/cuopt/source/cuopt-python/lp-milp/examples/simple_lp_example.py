@@ -22,6 +22,8 @@ settings.set_parameter("time_limit", 60)
 # Solve the problem
 problem.solve(settings)
 
+breakpoint()
+
 # Check solution status
 if problem.Status.name == "Optimal":
     print(f"Optimal solution found in {problem.SolveTime:.2f} seconds")

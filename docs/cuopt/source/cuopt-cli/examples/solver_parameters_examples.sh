@@ -9,3 +9,4 @@ cuopt_cli --time-limit 5 --method pdlp sample.mps
 
 # Turn off output to console and output the logs to a .log file and solution to a .sol file
 cuopt_cli --log-to-console false --log-file mip_sample.log --solution-file mip_sample.sol mip_sample.mps
+
