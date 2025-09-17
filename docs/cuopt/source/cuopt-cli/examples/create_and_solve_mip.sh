@@ -1,5 +1,5 @@
 #!/bin/bash
-# Create a sample MIP file for Mixed Integer Programming example
+# Create a sample MIP file for Mixed Integer Programming example and solve it with custom parameters using cuopt_cli
 
 echo "* Optimal solution -28
 NAME          MIP_SAMPLE
@@ -27,3 +27,5 @@ BOUNDS
  UP BOUND     X1               10
  UP BOUND     X2               10
 ENDATA" > mip_sample.mps
+
+cuopt_cli --mip-absolute-gap 0.01 --time-limit 10 mip_sample.mps

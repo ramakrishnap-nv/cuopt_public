@@ -22,3 +22,5 @@ RHS
  RHS1      ROW1                5.4
  RHS1      ROW2                4.9
 ENDATA" > sample.mps
+
+cuopt_cli sample.mps
