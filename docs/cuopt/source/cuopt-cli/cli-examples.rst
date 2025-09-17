@@ -6,14 +6,9 @@ Basic Usage
 
 To solve a simple LP problem using cuopt_cli:
 
-First, create a sample MPS file:
+First, create a sample MPS file and solve it using cuopt_cli:
 
-.. literalinclude:: examples/create_sample_mps.sh
-   :language: bash
-
-Then solve using default settings:
-
-.. literalinclude:: examples/solve_basic_lp.sh
+.. literalinclude:: examples/create_and_solve_lp.sh
    :language: bash
 
 This should give you the following output:
@@ -40,14 +35,9 @@ Mixed Integer Programming Example
 
 Here's an example of solving a Mixed Integer Programming (MIP) problem using the CLI:
 
-First, create a sample MIP file:
+First, create a sample MIP file and solve it with custom parameters using cuopt_cli:
 
-.. literalinclude:: examples/create_mip_sample.sh
-   :language: bash
-
-Then solve the MIP problem with custom parameters:
-
-.. literalinclude:: examples/solve_mip_custom.sh
+.. literalinclude:: examples/create_and_solve_mip.sh
    :language: bash
 
 This should produce output similar to:
