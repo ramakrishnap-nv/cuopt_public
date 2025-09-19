@@ -112,11 +112,11 @@ Build and run the example
       VAR2      ROW1      4              ROW2      10.1
    RHS
       RHS1      ROW1      5.4            ROW2      4.9
-   ENDATA" > sample.mps
+   ENDATA" > lp.mps
 
    # Build and run the example
    gcc -I $INCLUDE_PATH -L $LIBCUOPT_LIBRARY_PATH -o lp_example_mps lp_example_mps.c -lcuopt
-   ./lp_example_mps sample.mps
+   ./lp_example_mps lp.mps
 
 
 You should see the following output:

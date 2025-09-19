@@ -131,11 +131,11 @@ Build and run the example
    BOUNDS
     UP BOUND     X1               10
     UP BOUND     X2               10
-   ENDATA" > sample.mps
+   ENDATA" > milp.mps
 
    # Build and run the example
    gcc -I $INCLUDE_PATH -L $LIBCUOPT_LIBRARY_PATH -o milp_example_mps milp_example_mps.c -lcuopt
-   ./milp_example_mps sample.mps
+   ./milp_example_mps milp.mps
 
 
 You should see the following output:
