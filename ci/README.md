@@ -40,4 +40,24 @@ Similarly, for Conda package,
 - all python bindings are tested under one script called `test_python.sh`.
 
 
-There are other scripts in this directory which are used to build and test the code and are also used in the workflows as utlities.
+## Wheel Validation
+
+The `validate_wheel.sh` script is used to validate built wheel packages before publishing. It performs two checks:
+
+1. **pydistcheck**: Validates the wheel package structure and enforces size limits (PyPI has a 1GiB hard limit, but we aim to keep packages smaller).
+2. **twine check**: Ensures the wheel passes PyPI's upload validation requirements.
+
+## Docker
+
+The `docker/` folder contains everything needed to build and test the cuOpt container image:
+
+- `Dockerfile`: The main Dockerfile for building the cuOpt container image.
+- `context/`: Contains files and data for the buildx context (e.g., entrypoint scripts).
+- `test_image.sh`: Script to test the built container image.
+- `create_multiarch_manifest.sh`: Script for creating multi-architecture manifests.
+
+Refer to `docker/README.md` for instructions on testing container images.
+
+## Other Scripts
+
+There are other scripts in this directory which are used to build and test the code and are also used in the workflows as utilities.
