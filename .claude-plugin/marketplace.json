@@ -15,10 +15,28 @@
       "description": "Base behavior rules for using NVIDIA cuOpt. Read first when helping users with cuOpt (routing, LP/MILP, QP, installation, server)."
     },
     {
+      "name": "cuopt-verification",
+      "source": "./skills/cuopt-verification",
+      "skills": "./",
+      "description": "Standardized verification workflow for cuOpt solutions. Use after solving any optimization problem (LP, MILP, QP, routing) to confirm correctness."
+    },
+    {
       "name": "cuopt-developer",
       "source": "./skills/cuopt-developer",
       "skills": "./",
-      "description": "Contribute to NVIDIA cuOpt codebase including C++/CUDA, Python, server, docs, and CI. Use when the user wants to modify solver internals, add features, submit PRs, or understand the codebase architecture."
+      "description": "Base behavior and safety rules for contributing to the cuOpt codebase. Read first for any development task."
+    },
+    {
+      "name": "cuopt-developer-build",
+      "source": "./skills/cuopt-developer-build",
+      "skills": "./",
+      "description": "Build, test, style checks, DCO, and project architecture. Use when building, testing, or preparing PRs."
+    },
+    {
+      "name": "cuopt-developer-code",
+      "source": "./skills/cuopt-developer-code",
+      "skills": "./",
+      "description": "C++/CUDA/Python coding conventions, error handling, memory management, and common dev tasks. Use when writing or reviewing code."
     },
     {
       "name": "cuopt-installation-common",

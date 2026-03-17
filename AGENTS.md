@@ -10,7 +10,10 @@ AI agent skills for NVIDIA cuOpt optimization engine. Skills live in **`skills/`
 
 ### Rules
 - `skills/cuopt-user-rules/` — User-facing behavior and conventions; read first when helping users with cuOpt (routing, LP, MILP, QP, install, server). Choose skills from the index below by task, problem type, and interface (Python / C / CLI).
-- `skills/cuopt-developer/` — Contributing and development; use when the user is building from source, contributing code, or working on cuOpt internals.
+- `skills/cuopt-verification/` — Verification: standardized workflow to confirm solution correctness after solving (status, objective, constraints, sanity check). Applies to all domains and APIs.
+- `skills/cuopt-developer/` — Base behavior and safety rules for contributing to cuOpt. Read first for any dev task.
+- `skills/cuopt-developer-build/` — Build, test, style checks, DCO, and project architecture. Use when building, testing, or preparing PRs.
+- `skills/cuopt-developer-code/` — C++/CUDA/Python coding conventions, error handling, memory management, and common dev tasks. Use when writing or reviewing code.
 - `skills/skill-evolution/` — Skill evolution: after solving a non-trivial problem, propose skill updates to capture generalizable learnings.
 
 ### Common (concepts only; no API code)
