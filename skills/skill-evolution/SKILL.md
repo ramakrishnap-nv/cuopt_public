@@ -54,7 +54,9 @@ If no ground truth is available, you are in Phase 2 (inference), not Phase 1.
 
 ### Distillation
 
-When the score passes, distill the learning into a skill artifact. Two types:
+When the score passes, distill the learning into a skill artifact. Each addition must be the **minimum text needed** to prevent the same mistake next time — a single gotcha sentence, a short pattern, or a table row. **Hard limit: ≤ 10 lines.** If the addition would exceed 10 lines, you MUST ask the user for explicit permission before proposing it. State each insight **once**; never repeat a point across intro and gotcha.
+
+Two types:
 
 **Markdown** (SKILL.md patches) — gotchas, patterns, examples, table rows:
 - Identify which `skills/*/SKILL.md` would benefit
@@ -233,7 +235,9 @@ A proposal must NOT:
 ## Distillation checklist
 
 Before proposing, verify:
-- [ ] The learning is stated generically (no user-specific variable names, data, or paths)
+- [ ] **Generic language:** No problem-instance names leaked from the triggering interaction — this includes variable names, commodity names (e.g. "grain", "sulfur"), specific units ("per ton"), and product/material labels ("Raw material C", "product A"). Use generic terms (units, items, quality attribute, product 1, etc.)
+- [ ] **No duplicate explanations:** Each insight is stated once. If you have a gotcha, it must not repeat the introductory paragraph
+- [ ] **Brevity:** Addition is ≤ 10 lines. If it exceeds 10 lines, you MUST get explicit user permission before proposing
 - [ ] No problem-specific values, constants, or example outputs that could overfit the proposal to a single instance (e.g. avoid citing specific objective values, dataset sizes, or variable counts from the triggering problem)
 - [ ] It fits the skill's existing structure (matches the style of surrounding content)
 - [ ] It does not contradict existing skill content
@@ -248,6 +252,29 @@ Before proposing, verify:
 - [ ] Placed in the single highest-impact skill (common > API > new); not duplicated across skills
 - [ ] Phase is correctly identified (learning/inference/reflection)
 - [ ] Learning-phase proposals include a score; inference-phase proposals are marked unscored
+
+### Bad vs good distillation example
+
+**Bad** (verbose, non-generic — leaks problem-instance details):
+
+```markdown
+## Multi-period grain trading
+
+In grain trading problems, grain bought this period cannot be sold this period.
+The warehouse capacity must account for grain purchased before any grain is sold.
+If `cost_per_ton > sell_price`, the grain should not be purchased...
+```
+
+**Good** (concise, generic — reusable pattern only):
+
+```markdown
+## Multi-period inventory / purchasing models
+
+For each period *t* with balance `stock[t] = stock[t-1] + buy[t] - sell[t]`:
+- **End-of-period capacity**: `stock[t] <= capacity` — always needed.
+- **After-purchase capacity**: `stock[t-1] + buy[t] <= capacity` — only needed
+  when purchases arrive before sales within a period.
+```
 
 ## Validation
 
