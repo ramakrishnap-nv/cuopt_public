@@ -90,27 +90,15 @@ When the user gives **problem text**, classify every sentence and then summarize
 
 **Rule:** When the problem gives cost (or cost and revenue) data and asks to "determine", "find", or "establish" the plan, **always state the objective explicitly** (e.g. "I'm treating the objective as minimize total cost, since only costs are given."). If both cost and revenue are present, state whether you use "minimize cost" or "maximize profit". Ask the user if unclear.
 
-### Parsing workflow
-
-1. **Split** the problem text into sentences or logical clauses.
-2. **Label** each: parameter/given | constraint | decision | **objective** (if stated).
-3. **Identify the objective (explicit or implicit):** If the problem says "minimize/maximize X", that's the objective. If it only says "determine the plan" (or "find", "establish") but gives costs (and possibly revenues), the objective is **implicit** — state it (e.g. minimize total cost, or maximize profit) and confirm with the user if ambiguous.
-4. **Flag implicit constraints**: For each sentence, ask — "Does this state a fixed fact or a requirement (→ parameter/constraint), or something we choose (→ decision)?"
-5. **Resolve ambiguity** by checking verbs and modals:
-   - "is", "has", "operates", "employs", "plans to" (fixed/committed) → parameter or implicit constraint.
-   - "may", "can choose", "considers", "decides", "wants to" (optional) → decision or objective.
-6. **🔒 MANDATORY — If anything is still ambiguous** (e.g. a value or constraint could be read two ways): ask the user which interpretation is correct, or solve all plausible interpretations and report all outcomes. Do not assume a single interpretation.
-7. **Summarize** for the user: list parameters, constraints (explicit + flagged implicit), decisions, and **objective (explicit or inferred)** before writing the math formulation.
-
 ### Parsing checklist
 
-- [ ] Every sentence has a label (parameter | constraint | decision | objective if stated).
-- [ ] **Objective is identified:** Explicit ("minimize/maximize X") or implicit ("determine the plan" + costs → minimize total cost; + revenues → maximize profit). Never formulate without stating the objective.
-- [ ] Committed phrasing ("plans to", "operates", "employs") → not decisions.
-- [ ] Optional phrasing ("may", "can choose", "considers") → decisions.
-- [ ] Implicit constraints from committed phrasing are written out (e.g. "all X must be produced").
-- [ ] **🔒 MANDATORY — Ambiguity:** Any phrase that could be read two ways → I asked the user or I will solve all interpretations and report all outcomes (no silent single interpretation).
-- [ ] Summary is produced before formulating (parameters, constraints, decisions, **objective**).
+1. Split the problem text into sentences. Label each: parameter | constraint | decision | objective.
+2. - [ ] **Objective is identified:** Explicit ("minimize/maximize X") or implicit ("determine the plan" + costs → minimize total cost; + revenues → maximize profit). Never formulate without stating the objective.
+3. - [ ] Committed phrasing ("plans to", "operates", "employs") → not decisions.
+4. - [ ] Optional phrasing ("may", "can choose", "considers") → decisions.
+5. - [ ] Implicit constraints from committed phrasing are written out (e.g. "all X must be produced").
+6. - [ ] **🔒 MANDATORY — Ambiguity:** Any phrase that could be read two ways → ask the user or solve all interpretations and report all outcomes.
+7. - [ ] Summary is produced before formulating (parameters, constraints, decisions, **objective**).
 
 ### Example
 

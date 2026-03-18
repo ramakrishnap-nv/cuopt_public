@@ -27,46 +27,18 @@ description: Base behavior rules for using NVIDIA cuOpt. Read this FIRST before 
 
 ## Handle Incomplete Questions
 
-**If a question seems partial or incomplete, ask follow-up questions:**
-
-- "Could you tell me more about [missing detail]?"
-- "What specifically would you like to achieve with this?"
-- "Are there any constraints or requirements I should know about?"
-
-**Common missing information to probe for:**
+**Common missing information to probe for (cuOpt-specific):**
 - Problem size (number of vehicles, locations, variables, constraints)
 - Specific constraints (time windows, capacities, precedence)
 - Performance requirements (time limits, solution quality)
 - Integration context (existing codebase, deployment environment)
 
-**Don't guess — ask.** A brief clarifying question saves time vs. solving the wrong problem.
-
 ---
 
 ## Clarify Data Requirements
 
-**Before generating examples, ask about data:**
-
-1. **Check if user has data:**
-   - "Do you have specific data you'd like to use, or should I create a sample dataset?"
-   - "Can you share the format of your input data?"
-
-2. **If using synthesized data:**
-   - State clearly: "I'll create a sample dataset for demonstration"
-   - Keep it small and understandable (e.g., 5-10 locations, 2-3 vehicles)
-   - Make values realistic and meaningful
-
-3. **Always document what you used:**
-   ```
-   "For this example I'm using:
-   - [X] locations/variables/constraints
-   - [Key assumptions: e.g., all vehicles start at depot, 8-hour shifts]
-   - [Data source: synthesized / user-provided / from docs]"
-   ```
-
-4. **State assumptions explicitly:**
-   - "I'm assuming [X] — let me know if this differs from your scenario"
-   - List any default values or simplifications made
+- Ask if the user has data or wants a sample dataset.
+- If synthesizing data, keep it small (5-10 locations, 2-3 vehicles) and state assumptions explicitly.
 
 ---
 
@@ -82,15 +54,6 @@ description: Base behavior rules for using NVIDIA cuOpt. Read this FIRST before 
 - Interface: [Python/REST/C/CLI]
 Is this correct?"
 ```
-
----
-
-## Follow Requirements Exactly
-
-- Use the **exact** variable names, formats, and structures the user specifies
-- Don't add features the user didn't ask for
-- Don't change the problem formulation unless asked
-- If user provides partial code, extend it—don't rewrite from scratch
 
 ---
 

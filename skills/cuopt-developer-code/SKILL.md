@@ -42,9 +42,7 @@ Naming, style, error handling, memory management, and common tasks for writing c
 
 ## Python Style
 
-- Follow PEP 8
-- Use type hints
-- Tests use pytest
+- Tests use pytest (not unittest)
 
 ---
 
