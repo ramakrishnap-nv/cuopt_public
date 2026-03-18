@@ -54,14 +54,24 @@ If no ground truth is available, you are in Phase 2 (inference), not Phase 1.
 
 ### Distillation
 
-When the score passes, distill the learning into a skill artifact. Each addition must be the **minimum text needed** to prevent the same mistake next time — a single gotcha sentence, a short pattern, or a table row. **Hard limit: ≤ 10 lines.** If the addition would exceed 10 lines, you MUST ask the user for explicit permission before proposing it. State each insight **once**; never repeat a point across intro and gotcha.
+When the score passes, distill the learning into a skill artifact.
+
+**Core principles:**
+
+1. **Only add what the agent gets wrong** — do not teach domain concepts the model already knows. If the model knows what cutting stock is but picks the wrong objective, add the gotcha about the objective, not a cutting stock tutorial.
+2. **Gotchas are the highest-signal content** — a single sentence capturing a failure mode is worth more than a paragraph of explanation. Prefer table rows and one-line gotchas over new subsections.
+3. **Don't railroad** — state the insight, not a full playbook. Give the agent the information to avoid the mistake; let it adapt to the situation.
+4. **≤ 10 lines hard limit.** If the addition would exceed 10 lines, you MUST ask the user for explicit permission. State each insight **once**; never repeat a point across intro and gotcha.
+5. **Progressive disclosure** — if a learning genuinely needs extensive reference material (strategies, examples, code), put the detail in a separate file (e.g. `references/<topic>.md` or `assets/`) and add only a short pointer + gotcha to SKILL.md.
+
+**Before proposing, ask:** *"Would the agent get this wrong without this addition?"* If the answer is no — the model already knows the concept — do not add it.
 
 Two types:
 
-**Markdown** (SKILL.md patches) — gotchas, patterns, examples, table rows:
+**Markdown** (SKILL.md patches) — gotchas, patterns, table rows:
 - Identify which `skills/*/SKILL.md` would benefit
-- Extract the general pattern from the specific fix
-- Write the exact addition (new row, new subsection, new code example)
+- Extract only the failure-preventing insight, not domain knowledge
+- Write the exact addition (new row, new gotcha, short pattern)
 
 **Code** (assets/*.py) — reusable helper functions, reference solutions:
 - Place in `skills/*/assets/` alongside existing assets
@@ -235,10 +245,12 @@ A proposal must NOT:
 ## Distillation checklist
 
 Before proposing, verify:
-- [ ] **Generic language:** No problem-instance names leaked from the triggering interaction — this includes variable names, commodity names (e.g. "grain", "sulfur"), specific units ("per ton"), and product/material labels ("Raw material C", "product A"). Use generic terms (units, items, quality attribute, product 1, etc.)
-- [ ] **No duplicate explanations:** Each insight is stated once. If you have a gotcha, it must not repeat the introductory paragraph
+- [ ] **Not obvious:** The agent would get this wrong without the addition. Do not add domain knowledge the model already has — only the specific gotcha or pattern it missed
+- [ ] **Generic language:** No problem-instance names leaked — commodity names (e.g. "grain", "sulfur"), specific units ("per ton"), product/material labels ("Raw material C", "product A"). Use generic terms (units, items, quality attribute, product 1)
+- [ ] **No duplicate explanations:** Each insight is stated once. A gotcha must not repeat the introductory paragraph
 - [ ] **Brevity:** Addition is ≤ 10 lines. If it exceeds 10 lines, you MUST get explicit user permission before proposing
-- [ ] No problem-specific values, constants, or example outputs that could overfit the proposal to a single instance (e.g. avoid citing specific objective values, dataset sizes, or variable counts from the triggering problem)
+- [ ] **Not railroading:** States the insight, not a full prescriptive playbook. Gives the agent flexibility to adapt
+- [ ] No problem-specific values, constants, or example outputs that could overfit to a single instance
 - [ ] It fits the skill's existing structure (matches the style of surrounding content)
 - [ ] It does not contradict existing skill content
 - [ ] It is factually correct (verified during the interaction, not speculative)
