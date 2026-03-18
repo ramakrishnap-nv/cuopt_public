@@ -151,27 +151,13 @@ Objective uses segment variables × segment profit rates.
 <!-- skill-evolution:start — cutting stock waste = total area minus useful area -->
 ## Cutting stock / trim loss problems
 
-In cutting stock problems, **waste area** includes both **trim loss** (unused width within each cutting pattern) and **over-production** (excess strips produced beyond demand). Minimizing only trim loss (waste width × length per pattern) ignores over-production and yields an incorrect objective.
-
-### Correct objective
-
-Since the total useful area demanded is a constant, minimizing waste is equivalent to minimizing total material area consumed:
+**Gotcha:** Waste includes both **trim loss** (unused width within a pattern) and **over-production** (excess beyond demand). Minimizing only trim loss ignores over-production. Instead, minimize total material consumed — since useful area is constant, this is equivalent to minimizing waste:
 
 ```
-minimize  sum_j (roll_width_j × x_j)
+minimize  sum_j (stock_width_j × x_j)
 ```
 
-where `x_j` is the length cut using pattern `j`. The waste area is then:
-
-```
-waste = total_material_area − required_useful_area
-```
-
-where `required_useful_area = sum_i (order_width_i × order_length_i)`.
-
-### Gotcha
-
-Using `sum_j (waste_width_j × x_j)` as the objective only captures trim loss — the unused strip within each pattern. It does **not** penalize over-production of an order. The solver will over-produce narrow orders to fill patterns efficiently, but that excess material is still waste. Always use total material area as the objective.
+where `x_j` is the amount cut using pattern `j`.
 <!-- skill-evolution:end -->
 ## Goal programming (preemptive / lexicographic)
 <!-- skill-evolution:start — goal programming section -->
@@ -188,53 +174,29 @@ Goal programming optimizes multiple objectives in priority order. Implement it a
 
 ### Variable types in goal programming
 
-Deviation variables (d⁻, d⁺) and slack/idle-time variables are always **continuous**. However, **decision variables must still be INTEGER when they represent discrete/countable quantities** (units produced, vehicles, workers, etc.). Do not let the presence of continuous deviation variables cause you to make all variables continuous — the integrality of decision variables directly affects feasibility and objective values.
+Deviation variables (d⁻, d⁺) and slack variables are always **continuous**. Decision variables must still be **INTEGER** when they represent discrete/countable quantities (units, vehicles, workers, etc.).
 
 ---
 
 <!-- skill-evolution:start — inventory capacity must bound stock-after-purchase -->
 ## Multi-period inventory / purchasing models
 
-In problems with buying, selling, and warehouse capacity over multiple periods, decide which capacity constraints to include based on the problem's timing assumptions.
+For each period *t* with balance `stock[t] = stock[t-1] + buy[t] - sell[t]`:
 
-### Pattern
+- **End-of-period capacity**: `stock[t] <= capacity` — always needed.
+- **After-purchase capacity**: `stock[t-1] + buy[t] <= capacity` — only needed when purchases arrive before sales within a period (sequential operations).
 
-For each period *t* with inventory balance `stock[t] = stock[t-1] + buy[t] - sell[t]`:
-
-- **End-of-period capacity** (variable bound): `stock[t] <= capacity` — always needed.
-- **After-purchase capacity** (explicit constraint): `stock[t-1] + buy[t] <= capacity` — prevents buying more than the warehouse can hold before any sales occur within the period.
-
-### When to include the after-purchase constraint
-
-- **Include it** when the problem states or implies that purchases are received before sales happen within a period (sequential operations), or when the warehouse physically cannot exceed capacity at any instant.
-- **Omit it** when buying and selling are concurrent within a period (common in textbook trading/inventory problems) and the capacity applies only to end-of-period stock. Many classic problems only constrain end-of-period inventory.
-
-**Key interaction with the sell constraint:** If the model already has `sell[t] <= stock[t-1]` (grain bought this period cannot be sold this period), the model is bounded even without the after-purchase constraint. The sell constraint prevents unbounded buy-sell cycling. The after-purchase constraint is then an additional physical restriction, not a mathematical necessity.
-
-**Default:** If the problem does not specify timing within a period, use **only** end-of-period capacity (`stock[t] <= capacity`). Add the after-purchase constraint only if the problem explicitly requires it.
+**Default:** Use only end-of-period capacity unless the problem explicitly states within-period sequencing. If the model already has `sell[t] <= stock[t-1]` (cannot sell what was bought this period), that prevents unbounded buy-sell cycling without needing the after-purchase constraint.
 <!-- skill-evolution:end -->
 
 <!-- skill-evolution:start — blending with shared mixing tank (intermediate processing) -->
-## Blending with shared mixing / intermediate processing
+## Blending with shared intermediate processing
 
-In some blending problems, a subset of raw materials must be **mixed together first** (e.g., in a mixing tank) before being allocated to different products. The resulting intermediate has a **uniform composition** — you cannot independently assign different raw materials to different products.
-
-### Why the standard blending LP is wrong here
-
-The standard blending LP uses variables `x[i][j]` (amount of raw material `i` in product `j`) and freely allocates each raw material to each product. When raw materials share a mixing step, the proportions of those raw materials must be **identical** in every product that receives the intermediate. This proportionality constraint is **bilinear** (`x[A,1]*x[B,2] = x[B,1]*x[A,2]`) and cannot be directly expressed in an LP.
+When raw materials are **mixed together first** (e.g., in a shared tank) before allocation to products, the standard blending LP (`x[i][j]` per raw material per product) breaks down. The shared mixing step forces **identical proportions** in every product receiving the intermediate, creating a bilinear constraint that is not LP-representable.
 
 ### Linearization strategies
 
-1. **Single-product allocation:** If analysis shows the intermediate is profitable in only one product, allocate all intermediate to that product (set intermediate allocation to other products to zero). The proportionality constraint becomes trivially satisfied. This is the most common case — check profitability of intermediate in each product before attempting a general split.
-
-2. **Parametric over intermediate concentration:** Fix the sulfur/quality concentration of the intermediate as a parameter `σ`. For each fixed `σ`, the problem is a standard LP (intermediate becomes a virtual raw material with known properties). Solve for a grid of `σ` values or use the structure to find the optimum analytically.
-
-3. **Scenario enumeration:** When only 2–3 products exist, enumerate which products receive the intermediate (all-to-A, all-to-B, split). For each scenario with a single recipient, the LP is standard. For split scenarios, use strategy 2.
-
-### Profitability check
-
-Before formulating, check whether using the intermediate in each product is profitable:
-- Compare the **minimum cost per ton** of the intermediate (using cheapest feasible raw material mix) against each product's **selling price**.
-- If `cost_intermediate > sell_price[j]` for some product `j`, the intermediate should not be allocated to product `j`. Raw material C (or other direct inputs) alone may also be unprofitable if `cost_C > sell_price[j]`.
-- This analysis often eliminates the need for a bilinear split entirely.
+1. **Single-product allocation:** Check profitability of the intermediate in each product first. If only one product benefits, allocate all intermediate there — the proportionality constraint vanishes. This is the most common resolution.
+2. **Parametric:** Fix the intermediate's quality attribute as a parameter `σ`, making it a virtual raw material. Solve the LP for a grid of `σ` values.
+3. **Scenario enumeration:** For 2-3 products, enumerate allocation scenarios (all to product 1, all to product 2, split). Single-recipient cases are standard LPs; splits use strategy 2.
 <!-- skill-evolution:end -->
