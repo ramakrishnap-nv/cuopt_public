@@ -21,7 +21,37 @@
 
 #include "cudss.h"
 
+#include <dlfcn.h>
+#include <mutex>
+#include <string>
+
 namespace cuopt::mathematical_optimization::barrier {
+
+namespace detail {
+
+// Preload cuOpt's bundled modern libgomp under its literal soname before cuDSS's threading
+// layer loads, so cuDSS resolves the same instance instead of a missing/outdated host one
+// (#1219). Skips if any libgomp.so.1 is already loaded, to avoid mapping a second instance.
+inline void preload_bundled_libgomp()
+{
+  static std::once_flag once;
+  std::call_once(once, []() {
+    if (dlopen("libgomp.so.1", RTLD_NOW | RTLD_NOLOAD) != nullptr) { return; }
+
+    Dl_info info;
+    if (dladdr(reinterpret_cast<void*>(&preload_bundled_libgomp), &info) == 0 ||
+        info.dli_fname == nullptr) {
+      return;
+    }
+    std::string self_path(info.dli_fname);
+    auto slash = self_path.find_last_of('/');
+    if (slash == std::string::npos) { return; }
+    std::string sibling = self_path.substr(0, slash + 1) + "libgomp.so.1";
+    dlopen(sibling.c_str(), RTLD_NOW | RTLD_GLOBAL);
+  });
+}
+
+}  // namespace detail
 
 template <typename i_t, typename f_t>
 class sparse_cholesky_base_t {
@@ -259,6 +289,7 @@ class sparse_cholesky_cudss_t : public sparse_cholesky_base_t<i_t, f_t> {
     }
 
     if (cudss_mt_lib_file != nullptr) {
+      detail::preload_bundled_libgomp();
       settings.log.printf("cuDSS Threading layer       : %s\n", cudss_mt_lib_file);
       CUDSS_CALL_AND_CHECK_EXIT(
         cudssSetThreadingLayer(handle, cudss_mt_lib_file), status, "cudssSetThreadingLayer");

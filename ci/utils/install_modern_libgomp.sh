@@ -2,17 +2,10 @@
 # SPDX-FileCopyrightText: Copyright (c) 2026, NVIDIA CORPORATION & AFFILIATES. All rights reserved.
 # SPDX-License-Identifier: Apache-2.0
 
-# Fetch a modern GNU libgomp from conda-forge and leave it, verified, at
-# <dest_dir>/libgomp.so.1.0.0 (with a libgomp.so.1 symlink alongside it).
-#
-# The Rocky Linux 8 wheel build image's own libgomp (and the SCL gcc-toolset compiler's, which
-# doesn't ship a private copy at all) predates the OpenMP 5.0 detached-task runtime
-# (omp_fulfill_event) the fast MPS parser needs, with no newer one available from the image's
-# configured repos. conda-forge's build is confirmed to have it -- fetched directly over HTTPS
-# (a .conda file is just a zip archive; no conda/mamba CLI needed) rather than pulled in via a
-# package manager, since neither is installed on this image.
-#
-# See https://github.com/NVIDIA/cuopt/issues/1219
+# Fetch a modern GNU libgomp from conda-forge (verified to support OpenMP 5.0 detached tasks,
+# unlike Rocky Linux 8's own) and leave it at <dest_dir>/libgomp.so.1.0.0 + libgomp.so.1
+# symlink. Fetched directly over HTTPS (.conda is just a zip) since this image has no
+# conda/mamba CLI. See https://github.com/NVIDIA/cuopt/issues/1219
 
 set -euo pipefail
 

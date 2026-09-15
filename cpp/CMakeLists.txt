@@ -1070,6 +1070,16 @@ install(TARGETS cuopt cuopt_client
         COMPONENT dev
 )
 
+# Bundle our modern libgomp unrenamed so cuDSS's threading layer resolves the same instance
+# (preloaded in sparse_cholesky.cuh), not a missing/outdated host copy (#1219).
+if (CUOPT_BUNDLED_LIBGOMP)
+    install(FILES ${CUOPT_BUNDLED_LIBGOMP}
+            DESTINATION ${_LIB_DEST}
+            RENAME libgomp.so.1
+            COMPONENT runtime
+    )
+endif ()
+
 # adds the header files to the development deb package
 install(DIRECTORY include/cuopt/
         DESTINATION ${_INCLUDE_DEST}

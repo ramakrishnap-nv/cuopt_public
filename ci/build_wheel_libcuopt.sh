@@ -28,19 +28,15 @@ fi
 # Install Protobuf + gRPC (protoc + grpc_cpp_plugin)
 bash ci/utils/install_protobuf_grpc.sh
 
-# Compile against a modern GNU libgomp fetched from conda-forge, rather than bundling LLVM
-# libomp. See ci/utils/install_modern_libgomp.sh and https://github.com/NVIDIA/cuopt/issues/1219
-# for why: unifies cuOpt's own OpenMP runtime with the one cuDSS's threading layer needs, instead
-# of running two independent OpenMP runtimes (and their thread pools) in the same process.
+# Compile against a modern GNU libgomp from conda-forge instead of bundled LLVM libomp, to
+# unify cuOpt's OpenMP runtime with the one cuDSS's threading layer needs (#1219).
 MODERN_LIBGOMP_DIR="$(pwd)/modern_libgomp"
 bash ci/utils/install_modern_libgomp.sh "${MODERN_LIBGOMP_DIR}"
 
-export SKBUILD_CMAKE_ARGS="-DOpenMP_gomp_LIBRARY:FILEPATH=${MODERN_LIBGOMP_DIR}/libgomp.so.1.0.0"
+export SKBUILD_CMAKE_ARGS="-DOpenMP_gomp_LIBRARY:FILEPATH=${MODERN_LIBGOMP_DIR}/libgomp.so.1.0.0;-DCUOPT_BUNDLED_LIBGOMP:FILEPATH=${MODERN_LIBGOMP_DIR}/libgomp.so.1.0.0"
 
-# -DOpenMP_gomp_LIBRARY only points the *compiler/linker* at our modern libgomp. auditwheel
-# repair (further down) does its own, separate dependency resolution over the plain system
-# search path to decide what to vendor -- without this, it can't see our fetched copy and
-# silently vendors the old Rocky Linux 8 system default instead, defeating the whole point.
+# auditwheel repair does its own dependency resolution separately from the compiler; without
+# this it can't see our fetched copy and silently vendors the old Rocky 8 system one instead.
 export LD_LIBRARY_PATH="${MODERN_LIBGOMP_DIR}${LD_LIBRARY_PATH:+:${LD_LIBRARY_PATH}}"
 
 # OpenSSL 3 hints for libcuopt's own find_package(OpenSSL).
@@ -111,6 +107,8 @@ EXCLUDE_ARGS=(
   # 22.04+, RHEL/Rocky 9+, manylinux_2_28+ with openssl3, Debian 12+).
   --exclude "libssl.so.3"
   --exclude "libcrypto.so.3"
+  # Already placed unrenamed by CMake (cpp/CMakeLists.txt); keep it that way (#1219).
+  --exclude "libgomp.so.*"
 )
 
 ci/build_wheel.sh libcuopt ${package_dir}
