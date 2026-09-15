@@ -16,10 +16,12 @@ case "$(arch)" in
     x86_64)
         subdir="linux-64"
         build="he0feb66_4"
+        sha256="0fe5cb8e0752241ab55e11656ed1b9726248b522d23b929fe7c95b83eb55b9bb"
         ;;
     aarch64)
         subdir="linux-aarch64"
         build="h8acb6b2_4"
+        sha256="6d216e6dc9a158b920f6e0c1dfdd6d77575bf79420dadf85d64576298ecb4503"
         ;;
     *)
         echo "Unsupported architecture for modern libgomp fetch: $(arch)" >&2
@@ -27,7 +29,8 @@ case "$(arch)" in
         ;;
 esac
 
-# Pinned for build reproducibility -- bump deliberately, not by tracking "latest".
+# Pinned for build reproducibility -- bump deliberately, not by tracking "latest". sha256 is
+# from conda-forge's own repodata.json, not just the download itself (CWE-494).
 version="16.2.0"
 pkg="libgomp-${version}-${build}.conda"
 url="https://conda.anaconda.org/conda-forge/${subdir}/${pkg}"
@@ -37,6 +40,8 @@ trap 'rm -rf "${workdir}"' EXIT
 
 echo "Fetching ${url}"
 curl -fsSL -o "${workdir}/${pkg}" "${url}"
+
+echo "${sha256}  ${workdir}/${pkg}" | sha256sum -c -
 
 python3 -m pip install --quiet zstandard
 
